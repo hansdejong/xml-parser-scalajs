@@ -3,21 +3,16 @@ import scala.collection.mutable.Map
 
 import $file.P3_xmlparser_token, P3_xmlparser_token._
 
-var gLevel = 0 //Inspringniveau neemt toe met twee. Waarom?
+var gLevel = 0 
 
 object Parser_flatnode{
 
-
-	//Gebruik maken van standaardtype Tree, of gewoon Element teruggeven?
-	//Ben ik alleen geinteresseerd in elementen met attributen, tekst en subelementen,
-	//of moet ik andere soorten tokens meenemen (PI's, declaraties, commentaar)?
-	//TODO: Met for en yield
 	def makeFlatnodeList(theList: List[Token]): List[Flatnode] = { //AFBLIJVEN. DOET HET!
 		val resultList = new ListBuffer[Flatnode]
 		for(theToken <- theList) if(tokenToFlatnode(theToken)!=None)resultList += tokenToFlatnode(theToken).get
 		resultList.toList
 	}
-	//Throws een exception en geeft een Option! Een van beide, of een speciaal Errortoken.
+
 private def tokenToFlatnode(theToken:Token):Option[Flatnode]={
 	theToken.token match {
 		case TokenType.Comment => {
@@ -80,7 +75,6 @@ private def tokenToFlatnode(theToken:Token):Option[Flatnode]={
 					(rAttr findAllIn att).matchData foreach{
 					nv => startTag.attributes(nv.group(1)) = nv.group(2) //Setting map-entry
 				}
-
 			}
 			//todo (fulltext, niet meer nodig), (Tokenlist, nee nog niet)
 			return Some(startTag) }
@@ -89,7 +83,6 @@ private def tokenToFlatnode(theToken:Token):Option[Flatnode]={
 			val rNaam = """^</?([\w|:]+)""".r
 			//val rAttr = """\s\w+=\"\w+\"\W""".r
 			val rAttr="""\s([^"]*)=\"([^"]*)\"""".r
-			//The tagname
 			var theName=""
 			(rNaam findAllIn theToken.fullText).matchData foreach{
 				nm => theName = nm.group(1)
@@ -105,11 +98,7 @@ private def tokenToFlatnode(theToken:Token):Option[Flatnode]={
 			}
 			//todo (fulltext, niet meer nodig), (Tokenlist, nee nog niet)
 			return Some(emptyTag) }
-		case _ => {//throw new P2_parserlib.ProgrammingError("Unknown Token " + theToken.token, "tokenToFlatnode")
-		
-		//LET OP! Ik maakte geen gebruik van Option maar throw-de een error. Het is een van beide.
-		//Reconstructie achteraf: dit lijkt handiger bij debugging, 
-		//maar ik kan toch ook een printstatement toevoegen alvorens de None te retourneren?
+		case _ => {
 			println("Fout in stap IV, tokenToFlatnode. Unknown Token " + theToken.token)
 			return None
 		}
@@ -181,66 +170,6 @@ def attributeString(theMap:Map[String,String]):String ={
 
 
 
-
-
-
-
-
-
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/* Weer terug I.
-		def makeElements(children: List[Flatnode]):Either[String,List[Flatnode]] = {
-		//Vreemd dat dit compileert: niet alle flows geven een waarde terug. Retourneert-ie dan een Left("") ?
-			var insideSub = false
-			val ownChildren = new ListBuffer[Flatnode]
-			val currentSubList = new ListBuffer[Flatnode]
-//			var poppedElement:Option[ (A,Stack[A]) ]
-			var poppedName=""
-			var stack = new Stack[String]
-			for(child <- children){
-				child match{
-				//TODO
-					case tag @ BeginTag_Flatnode(_) => //currentElement = child
-											 //stack.push(currentElement.name)
-											 stack.push(tag.name)
-											 insideSub = true
-											 
-					case tag @ EndTag_Flatnode(_)   => if(insideSub) {
-												val poppedElement =stack.pop.getOrElse("")
-								
-												if(poppedElement == "") return Left("Lege stack (teveel endtags)")
-												else dummy//poppedName = poppedElement._1
-												if(poppedName == tag.name){
-													//newElement: Element = Element("root", parent, child.attributes, currentSubList.toList)
-													//TODO
-													//Moet ik hier de attributen er uit distilleren? Ik denk het niet meer
-													//currentSubList += newElement
-													insideSub = false
-												}
-												else currentSubList += child
-											 }
-			        						 else return Left("Niet gepaarde endtag)")
-					case EmptyTag_Flatnode(_) => if(insideSub) dummy
-								
-			        						 else dummy
-					case _                => if(insideSub)  // √
-												currentSubList += child
-											 else
-												ownChildren += child
- 				}
-			}
-			Right(ownChildren.toList)
-		}
-	}
-*/
-			
-//def dummy() = {}	
-
-		
-//Dit ombouwen tot een factorymethod waarbij de ownChildren en de directe subElements met hun children worden afgeleid
-//van children m.b.v. de stack
 
 
 

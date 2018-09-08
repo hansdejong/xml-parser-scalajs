@@ -76,7 +76,7 @@ object Parser_token{
 	//Zorgt voor eventuele naam, en attributen
 	private def buildToken(item:Token) ={
 		val rName ="""^</?([\w|:]+)""".r
-		//val rAttr = """\s\w+=\"\w+\"\W""".r
+	  //val rAttr = """\s\w+=\"\w+\"\W""".r
 		val rAttr="""\s([^"]*)=\"([^"]*)\"""".r //Nakijken. Snap ik niet
 		val namedTokens = List (TokenType.ElemStart, TokenType.ElemEnd)
 		if( namedTokens.contains( item.token )  ){

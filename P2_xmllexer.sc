@@ -49,12 +49,10 @@ def makeRegularExpression( onlyMarkup: Boolean = false )/*: String*/ = {
 	  listBuf.toList
 	}
 
-
 	def assertlex(data:String , numtokens:Int, markuponly:Boolean = false) ={
 		val tokens:List[String] = lexxml(data, markuponly)
 		if (tokens.length != numtokens){
 			val fullParse = lexxml(data).length
-			//for (token <- tokens)println(token)
 		    assert (fullParse ==numtokens , s"data = $data, numtokens is not $numtokens but $fullParse" )
 		}
 		if (!markuponly)
@@ -94,7 +92,6 @@ def walktokens( tokens:List[String] ):Unit = {
 
 def testlexer():Unit= {
 	println("Dit is xmllexer.testlexer():\n")
-    //this test suite could be larger!
     assertlex("<!doctype html public \"-//w3c//dtd html 4.0/en\" \"http://www.w3.org/tr/rec-html40/strict.dtd\">", 2)//oeps
     assertlex("<abc/>", 1)
     assertlex("<abc/><!--Dit is commentaar-->", 2)
@@ -112,6 +109,4 @@ def testlexer():Unit= {
     assertlex("<abc></def></abc>", 3)
 }
 
-//if __name__=="__main__":
-//    testlexer() //runnen van testlexer
 

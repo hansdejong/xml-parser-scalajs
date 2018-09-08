@@ -10,7 +10,7 @@ but couldn't fix some problems.
 This time I ported a regex-[Python-Lexer](http://code.activestate.com/recipes/65125-xml-lexing-shallow-parsing/)
 to Scala and extended it to produce a hierarchical Scala-datastructure.
 
- A made it in [Ammonite](http://ammonite.io/#Ammonite).
+ I made it in [Ammonite](http://ammonite.io/#Ammonite).
  To check it out, just install Ammonite, and run **amm -w P1_opstart.sc** on it.
  It is easy to build into a Scala-application.
  It is tested on the provided listing in Scala.js (that was a tense moment, using regex in Javascript).<br>

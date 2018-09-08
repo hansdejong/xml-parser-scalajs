@@ -3,7 +3,6 @@ import $file.P3_xmlparser_token
 import $file.P4_xmlparser_flatnode
 import $file.P5_xmltreeparser
 import $file.P6_XML_voorbeelden
-import $file.P7_DariusBook
 
 P1_Opstart.main(Array(""))
 
@@ -14,7 +13,7 @@ object P1_Opstart{
 
     println( "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" )
     println( "______________________________________________________________________" )
-//    println( xmlString )
+//  println( xmlString )
     val tokenstringList: List[String] = P2_xmllexer.lexxml(xmlString)
     println( "I. ==>\tEerst de tokenstringList (in Lexer):\n\n" +  tokenstringList.mkString)
     
@@ -30,21 +29,15 @@ object P1_Opstart{
     val flatnodeList = P4_xmlparser_flatnode.Parser_flatnode.makeFlatnodeList(tokenList)
     val uitlegIV = "\t(Deze komt praktisch overeen met de originele invoerlisting.)\n\n"
     println("IV. ==>\tEn de NodeList (in Parser_node):\n" + uitlegIV + flatnodeList.mkString) 
-    //De strings van de Nodes zijn aangepase met whitespace afhankelijk van level.
-    //Het zou mooier zijn dat in de printroutine te doen, zonder globale variabele
     
     println( "_________________________P5_____________________________________________" )
     val root:P5_xmltreeparser.TopElement = P5_xmltreeparser.TreeParser.makeElementTree(flatnodeList)
     val uitlegV = "\tDit wordt één element, de root, dat de andere elementen bevat.\n" +
                   "\tElementen bevatten hiërarchisch weer een lijst elementen en een lijst attributen.\n" +
-//                  "\tAndere soorten Node zoals commentaren kunnen eventueel naar keuze vervallen (allemaal?).\n" +
                   "\tAfsluittags zijn waarschijnlijk niet meer nodig.\n"
     println("V. ==>\tEn tenslotte wordt dit de elementTree (in xmltreeparser):\n" + uitlegV + "\nRoot:\n" + root)
     
-//  XML_parser_sec.aanroep(XML_voorbeelden.Voorbeelden.test7)
-//  XML_parser.aanroep(XML_voorbeelden.Voorbeelden.lijntjesVoorbeeld)
     println( "______________________________________________________________________" )
-//    val flatnodeList = P4_xmlparser_flatnode.Parser_flatnode.makeFlatnodeList(tokenList)
     val uitlegVI = "Nu nog een aantal voorbeelden van het gebruik.\n\n"
     println("VI. ==>\t" + uitlegVI) 
     println("De naam van de root: " + root.name)
@@ -59,7 +52,6 @@ object P1_Opstart{
 	println( "EmptyElem: "+ emptyElem.description + ",\nEmptyElem's parent: " + emptyElem.parent.description +
 	 ",\nEmptyElem's attributes: "  + emptyElem.asInstanceOf[P5_xmltreeparser.Element].attributes)
   }
-  
 }
 
 

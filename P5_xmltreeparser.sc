@@ -118,7 +118,6 @@ trait Node{
     val description:String
     def indent(level:Int):String= ("  " * level)
 }
-//trait Element
 
 case class Text_Node (level:Int, text: String) extends Node{
 	var parent = dummyTopElement
