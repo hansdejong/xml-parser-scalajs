@@ -1,7 +1,7 @@
 import $file.P2_xmllexer
 import $file.P3_xmlparser_token
-import $file.P4_xmlparser_flatnode
-import $file.P5_xmltreeparser
+import $file.P4_xmlparser_flatnode, P4_xmlparser_flatnode._
+import $file.P5_xmltreeparser, P5_xmltreeparser._
 import $file.P6_XML_voorbeelden
 
 P1_Opstart.main(Array(""))
@@ -31,7 +31,7 @@ object P1_Opstart{
     println("IV. ==>\tEn de NodeList (in Parser_node):\n" + uitlegIV + flatnodeList.mkString) 
     
     println( "_________________________P5_____________________________________________" )
-    val root:P5_xmltreeparser.TopElement = P5_xmltreeparser.TreeParser.makeElementTree(flatnodeList)
+    val root:P5_xmltreeparser.StartElement = P5_xmltreeparser.TreeParser.makeElementTree(flatnodeList)
     val uitlegV = "\tDit wordt één element, de root, dat de andere elementen bevat.\n" +
                   "\tElementen bevatten hiërarchisch weer een lijst elementen en een lijst attributen.\n" +
                   "\tAfsluittags zijn waarschijnlijk niet meer nodig.\n"
@@ -42,16 +42,27 @@ object P1_Opstart{
     println("VI. ==>\t" + uitlegVI) 
     println("De naam van de root: " + root.name)
     val children = for(child <- root.childNodes) yield child.description
-    val childElem = for(child <- root.childTopElements) yield child.description
+    val childElem = for(child <- root.childStartElements) yield child.description
     println("De kinderen van de root:\n" + children.mkString("\n") + "\n")
     println("Het tweede element (base nul): " + root.childNodes(2).description)
     println("Alleen de topelementen:\n" + childElem.mkString("\n") + "\n")
-	val schema = root.childTopElements(0)
+	val schema = root.childStartElements(0)
 	println( "De childNodes van schema:\n" + (for(node<-schema.childNodes)yield node.description).mkString("\n") )
 	val emptyElem = schema.childNodes(2)
 	println( "EmptyElem: "+ emptyElem.description + ",\nEmptyElem's parent: " + emptyElem.parent.description +
 	 ",\nEmptyElem's attributes: "  + emptyElem.asInstanceOf[P5_xmltreeparser.Element].attributes)
-  }
+	 
+	 
+	println( "______________________________________________________________________" )
+    val uitlegVII = "PreorderTraversal.\n\n"
+    println("VII. ==>\t" + uitlegVII) 
+    println("NodeLijst:\n "+ root.childNodes(2).preorder.mkString) 
+     
+	 
+  }//einde main()
+  
+  
+  
 }
 
 

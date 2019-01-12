@@ -4,13 +4,14 @@ import $file.P3_xmlparser_token, P3_xmlparser_token._
 import $file.P4_xmlparser_flatnode, P4_xmlparser_flatnode._
 
 import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.ArrayBuffer
 
 object TreeParser{
-	def makeElementTree(flatnodeList: List[Flatnode]): TopElement = {
+	def makeElementTree(flatnodeList: List[Flatnode]): StartElement = {
 		//Een rootelement toegevoegd
-		val parent:Option[TopElement] = None
+		val parent:Option[StartElement] = None
 		val attributes = scala.collection.mutable.Map.empty[String,String] //stub,emptyMap. Blijft waarchijnlijk leeg voor de root
-		val root: TopElement = TopElement(0, "root", attributes, makeNodeList( flatnodeList))
+		val root: StartElement = StartElement(0, "root", attributes, makeNodeList( flatnodeList))
 		updateParents(root)
 		root
 	}
@@ -65,7 +66,7 @@ object TreeParser{
 																case Left(msg)      => return Left( msg )
 																case Right(theList) => theList
 															 } 
-                                                             ownChildren += TopElement(level,  
+                                                             ownChildren += StartElement(level,  
                                                                                        poppedTag.name,
                                                                                        poppedTag.attributes,
                                                                                        theSubList//children, recursief
@@ -104,84 +105,107 @@ object TreeParser{
     def dummy() = {}	
 }//Einde TreeParser
 
-val dummyTopElement:TopElement = TopElement(0, "Dummy", scala.collection.mutable.Map(""->""), Nil) 	
+val dummyStartElement:StartElement = StartElement(0, "Dummy", scala.collection.mutable.Map(""->""), Nil) 	
 
 trait Element{
     val description:String
     val attributes: scala.collection.mutable.Map[String,String]
-    val numChildTopElements:Int //inclusief empty-elements
-    val childTopElements:List[Element]
+    val numChildStartElements:Int //inclusief empty-elements
+    val childStartElements:List[Element]
     val childNodes:List[Node]
 }
+
 trait Node{	
-    var parent:TopElement/*option?*/
+    var parent:StartElement
     val description:String
     def indent(level:Int):String= ("  " * level)
+
+	//https://www.youtube.com/watch?v=xALZFtjUhHg    
+	//De list is een enigszins ambigue gegevensstructuur: de xml is "platgeslagen" (geserialiseerd), 
+	//maar de Startelementen bevatten nog info over de onderliggende nodes.
+	def preorder:List[Node]={
+		val result:ArrayBuffer[Node] = ArrayBuffer.empty
+		recursive(this)
+		def recursive(n:Node):Unit={
+		     if(n.isInstanceOf[StartElement])
+		      { 
+		        val el = n.asInstanceOf[StartElement].copy(printDeep = false)
+		      	result += el
+		      	for(c <- el.childNodes) recursive(c)
+		      }
+		     else
+		     	result += n //visit (n.data)
+		}//Einde recursive
+		result.toList
+	}
+
+
 }
 
 case class Text_Node (level:Int, text: String) extends Node{
-	var parent = dummyTopElement
+	var parent = dummyStartElement
 	val description         = indent(level) + "Text"
 	override def toString() = indent(level) + text + "\n"
 }
 case class Comment_Node	(level:Int, content:String) extends Node{
-	var parent = dummyTopElement
+	var parent = dummyStartElement
 	val description         = indent(level) + "Comment"
 	override def toString() = indent(level) + content + /*"(" + level + ")" +*/ "\n"
 }
 case class CDATA_Node (level:Int, content:String) extends Node{
-	var parent = dummyTopElement
+	var parent = dummyStartElement
 	val description         = indent(level) + "CDATA"
 	override def toString() = indent(level) + content + "\n"	
 }
 case class XmlDeclaration_Node (level:Int, content:String) extends Node{
-	var parent = dummyTopElement
+	var parent = dummyStartElement
 	val description         = indent(level) + "XmlDecl"
 	override def toString() = indent(level) + content + "\n"
 }
 case class Declaration_Node	(level:Int, content:String) extends Node{
-	var parent = dummyTopElement
+	var parent = dummyStartElement
 	val description         = indent(level) + "Decl"
 	override def toString() = indent(level) + content + "\n"
 }
 case class PI_Node ( level:Int, target:String, content:String ) extends Node{
-	var parent = dummyTopElement
+	var parent = dummyStartElement
 	val description         = indent(level) + "PI"
 	override def toString() = indent(level) + content + "\n"
 }
 
-case class TopElement (val level:Int,
+case class StartElement (val level:Int,
 					val name:String,
 					//val parent:Option[Element],
 					val attributes: scala.collection.mutable.Map[String,String],
-					val childNodes: List[Node]
+					val childNodes: List[Node],
+					val printDeep:Boolean = true
 				   ) extends Node with Element{ 
-	var parent = dummyTopElement
-	val description = indent(level) + "TopElem <" +name+">"
+	var parent = dummyStartElement
+	val description = indent(level) + "StartElem <" +name+">"
 	override def toString () = {
 		var result = indent(level) + "<"+ name + ", Attributen:" + attributeString(attributes)+">"+"\n"
-		for(childNode <- childNodes){
-			result += childNode.toString()
- 		}
+		if(printDeep){
+				for(childNode <- childNodes) result += childNode.toString()
+		}
  		result
 	}
 
-	val numChildTopElements = {
+	val numChildStartElements = {
 		var result:Int = 0
 		for(el <- childNodes){
 			el match{
-				case el:TopElement => result += 1
+				case el:StartElement => result += 1
 				case el:EmptyElement => result += 1
 				case _ =>
 			}
 		}
 		result
 	}
-	val childTopElements:List[Element] = {
+	val childStartElements:List[Element] = {
 		var buf = new ListBuffer[Element]
 		for(el <- childNodes){
 			el match{
-				case el:TopElement => buf += el
+				case el:StartElement => buf += el
 				case el:EmptyElement => buf += el
 				case _ =>
 			}
@@ -194,16 +218,16 @@ case class EmptyElement (val level:Int,
 				         val name:String,
 					     val attributes: scala.collection.mutable.Map[String,String]
 				        ) extends Node with Element{
- 	var parent = dummyTopElement
+ 	var parent = dummyStartElement
 	val description          = indent(level) + "EmptyElem <" + name + "/>"
 	override def toString () = indent(level) + "<"+ name + ", Attributen:" + attributeString(attributes)+"/>"+"\n"
-	val numChildTopElements = 0
-    val	childTopElements = Nil
+	val numChildStartElements = 0
+    val	childStartElements = Nil
     val childNodes = Nil
 }
 
 case class EndElement (val level:Int, val name:String) extends Node{ 
- 	var parent = dummyTopElement
+ 	var parent = dummyStartElement
 	val description          = indent(level) + "EndElem </" + name + ">"
 	override def toString () = indent(level) + "</"+ name + ">"+"\n"
 }
@@ -233,12 +257,12 @@ private def flatnodeToNode(level:Int, flatnode:Flatnode):Node={
 	}
 }
 
-private def updateParents(top:TopElement):Unit = {
-    for(child <- top.childNodes){
+private def updateParents(start:StartElement):Unit = {
+    for(child <- start.childNodes){
 	    child match{
-		    case subTop:TopElement => subTop.parent = top
-	                                  updateParents(subTop)
-            case _          => child.parent = top
+		    case subStart:StartElement => subStart.parent = start
+	                                  updateParents(subStart)
+            case _          => child.parent = start
         }
     }
 }
