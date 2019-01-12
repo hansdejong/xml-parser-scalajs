@@ -56,7 +56,7 @@ object P1_Opstart{
 	println( "______________________________________________________________________" )
     val uitlegVII = "PreorderTraversal.\n\n"
     println("VII. ==>\t" + uitlegVII) 
-    println("NodeLijst:\n "+ root.childNodes(2).preorder.mkString) 
+    println("NodeLijst:\n "+ root.preorder.mkString) 
      
 	 
   }//einde main()
