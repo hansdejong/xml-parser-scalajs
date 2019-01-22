@@ -16,6 +16,6 @@ to Scala and extended it to produce a hierarchical Scala-datastructure.
  It is tested on the provided listing in Scala.js (that was a tense moment, using regex in Javascript).<br>
  (I'm not sure how easy it is to run Ammonite under Windows.)
 
- Until now I never used it in a real application, so the interfacing is very immature,
-  but the example-code shows you a direction.<br>
+ The interfacing was immature but improved in the last commit: level is a var now, and can be adjusted after rearrangements, and
+ namespaces are separated from tagnames. The example-code shows you a direction how to use it.<br>
 I intend to also show a Scala.js app using it on my blog. Working on it.
